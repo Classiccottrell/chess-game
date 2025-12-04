@@ -1,65 +1,80 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { signInWithPopup } from "firebase/auth";
+import { auth, githubProvider } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { Github, Sword } from "lucide-react";
+import { motion } from "framer-motion";
+
+export default function SplashPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await signInWithPopup(auth, githubProvider);
+      router.push("/home");
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      setError(err.message || "Failed to login with GitHub");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 text-white p-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900 rounded-full blur-[120px]" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="z-10 flex flex-col items-center space-y-8 max-w-md w-full text-center"
+      >
+        <div className="bg-neutral-900 p-6 rounded-2xl shadow-2xl border border-neutral-800">
+          <Sword className="w-16 h-16 mb-4 mx-auto text-purple-500" />
+          <h1 className="text-4xl font-bold tracking-tighter mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            GitHub Chess
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-neutral-400 mb-8">
+            Connect with developers. Play chess.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full bg-white text-black hover:bg-neutral-200 transition-colors font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {loading ? (
+              <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <Github className="w-5 h-5" />
+                Login with GitHub
+              </>
+            )}
+          </button>
+
+          {error && (
+            <p className="text-red-400 text-sm mt-4">{error}</p>
+          )}
         </div>
-      </main>
+
+        <div className="text-xs text-neutral-500 space-x-4">
+          <a href="#" className="hover:text-neutral-300 transition-colors">Terms & Conditions</a>
+          <span>•</span>
+          <a href="#" className="hover:text-neutral-300 transition-colors">Privacy Policy</a>
+        </div>
+      </motion.div>
     </div>
   );
 }
