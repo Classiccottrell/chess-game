@@ -22,7 +22,6 @@ export default function HomePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [screenNameInput, setScreenNameInput] = useState("");
     const [loading, setLoading] = useState(true);
-    const [onlineUsers, setOnlineUsers] = useState<UserProfile[]>([]);
     const [openGames, setOpenGames] = useState<any[]>([]);
 
     useEffect(() => {
@@ -78,7 +77,6 @@ export default function HomePage() {
     };
 
     const startSelfGame = () => {
-        // Generate a random ID for local game or just use 'local'
         router.push("/game/local");
     };
 
@@ -98,9 +96,6 @@ export default function HomePage() {
 
     const joinGame = async (gameId: string) => {
         if (!profile) return;
-        // We update the game doc in the GamePage or here? Better here to claim spot.
-        // But for simplicity, let's just navigate and let GamePage handle the join logic or do it here.
-        // Let's do it here to prevent race conditions slightly better.
         const gameRef = doc(db, "games", gameId);
         await updateDoc(gameRef, {
             black: { uid: profile.uid, screenName: profile.screenName, photoURL: profile.photoURL },
